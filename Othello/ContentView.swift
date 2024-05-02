@@ -13,7 +13,7 @@ struct ContentView: View {
             Image(systemName: "face.smiling")
                 .imageScale(.large)
                 .foregroundStyle(.tint)
-            Text("Serafina can you see this?")
+            Text("DJ can you see this?")
         }
         .padding()
     }
