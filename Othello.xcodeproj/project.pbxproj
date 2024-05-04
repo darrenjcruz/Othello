@@ -15,6 +15,7 @@
 		D14B39612BE32A39006C8B3E /* OthelloTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D14B39602BE32A39006C8B3E /* OthelloTests.swift */; };
 		D14B396B2BE32A39006C8B3E /* OthelloUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D14B396A2BE32A39006C8B3E /* OthelloUITests.swift */; };
 		D14B396D2BE32A39006C8B3E /* OthelloUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D14B396C2BE32A39006C8B3E /* OthelloUITestsLaunchTests.swift */; };
+		D14B397A2BE632DC006C8B3E /* HowToPlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D14B39792BE632DC006C8B3E /* HowToPlayView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -46,6 +47,7 @@
 		D14B39662BE32A39006C8B3E /* OthelloUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OthelloUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D14B396A2BE32A39006C8B3E /* OthelloUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OthelloUITests.swift; sourceTree = "<group>"; };
 		D14B396C2BE32A39006C8B3E /* OthelloUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OthelloUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		D14B39792BE632DC006C8B3E /* HowToPlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HowToPlayView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +101,7 @@
 				7AAC1F5E2BE3574200AFEE7C /* GameView.swift */,
 				D14B394F2BE32A31006C8B3E /* OthelloApp.swift */,
 				D14B39512BE32A32006C8B3E /* ContentView.swift */,
+				D14B39792BE632DC006C8B3E /* HowToPlayView.swift */,
 				D14B39532BE32A36006C8B3E /* Assets.xcassets */,
 				D14B39552BE32A36006C8B3E /* Preview Content */,
 			);
@@ -260,6 +263,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D14B397A2BE632DC006C8B3E /* HowToPlayView.swift in Sources */,
 				D14B39522BE32A32006C8B3E /* ContentView.swift in Sources */,
 				7AAC1F5F2BE3574200AFEE7C /* GameView.swift in Sources */,
 				D14B39502BE32A31006C8B3E /* OthelloApp.swift in Sources */,
