@@ -136,9 +136,6 @@ struct GameView: View {
             // Place the current player's piece
             board[row][col] = currentPlayer
             
-            // Update scores
-            updateScores()
-            
             // Iterate through all directions to check for flanking
             for dr in -1...1 {
                 for dc in -1...1 {
@@ -156,6 +153,9 @@ struct GameView: View {
             // Switch to the next player
             currentPlayer = (currentPlayer == .p1) ? .p2 : .p1
         }
+        
+        // Update scores
+        updateScores()
     }
 
     // Function to flip opponent's pieces in a specific direction
@@ -179,8 +179,10 @@ struct GameView: View {
             for cell in row {
                 if cell == .p1 {
                     p1Count += 1
+                    let _ = print("player 1: \(p1Count)")
                 } else if cell == .p2 {
                     p2Count += 1
+                    let _ = print("player 2: \(p2Count)")
                 }
             }
         }
