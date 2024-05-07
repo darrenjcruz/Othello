@@ -3,7 +3,7 @@ import Foundation
 
 // Enum to represent the state of each cell
 enum CellState {
-    case empty, p1, p2
+    case empty, p1, p2, pp1, pp2
 }
 
 struct GameView: View {
@@ -45,13 +45,14 @@ struct GameView: View {
                                 }) {
                                     Circle()
                                         .foregroundColor(self.colorForCellState(self.board[row][col]))
+                                        .opacity(self.circleOpacityForCellState(self.board[row][col]))
                                         .frame(width: 35, height: 35)
                                         .overlay(self.overlayForCellState(self.board[row][col]))
 
                                         
                                 }
                                 // Prevent players from placing their piece in a spot that is occupied
-                                .disabled(self.board[row][col] != .empty)
+                                .disabled(self.board[row][col] == .p1 || self.board[row][col] == .p2)
                                 .frame(width: 45, height: 45)
                                 .border(Color.black)
                                 .padding(-4)
@@ -68,6 +69,7 @@ struct GameView: View {
                             self.setupInitialBoardState()
                         }
             
+                // Stack for player names and their piece color
                 HStack {
                     Spacer()
                     Circle()
@@ -96,6 +98,7 @@ struct GameView: View {
                 }
                 .padding(.top, 60)
                 
+                // Stack for players' score
                 HStack {
                     Spacer()
                     Text("\(p1Score)")
@@ -125,9 +128,30 @@ struct GameView: View {
         board[4][4] = .p2
     }
     
+    // Function to fill in cells with possible moves
     func possibleMoves() {
-        // Fill in cells with possible moves
+        // Remove all previous possible moves
+        for row in 0..<board.count {
+            for col in 0..<board[row].count {
+                if board[row][col] == .pp1 || board[row][col] == .pp2 {
+                    board[row][col] = .empty
+                }
+            }
+        }
         
+        // Set up all current moves
+        for row in 0..<board.count {
+                for col in 0..<board[row].count {
+                    // If the cell is a valid move, change its state
+                    if isValidMove(row: row, col: col) {
+                        if currentPlayer == .p1 {
+                            board[row][col] = .pp1
+                        } else if currentPlayer == .p2 {
+                            board[row][col] = .pp2
+                        }
+                    }
+                }
+            }
     }
     
     // Function to place a piece at the specified row and column
@@ -156,6 +180,7 @@ struct GameView: View {
         
         // Update scores
         updateScores()
+        possibleMoves()
     }
 
     // Function to flip opponent's pieces in a specific direction
@@ -191,25 +216,24 @@ struct GameView: View {
     }
     
     // Function to check if the move is valid
+    // Takes the current cell and checks to see if its flanking
     func isValidMove(row: Int, col: Int) -> Bool {
-        // Check if the cell is empty
-        guard board[row][col] == .empty else { return false }
+        // Check if the cell is empty, pp1, or pp2
+            if board[row][col] == .empty || board[row][col] == .pp1 || board[row][col] == .pp2 {
+                // Iterate through all directions to check for flanking
+                for dr in -1...1 {
+                    for dc in -1...1 {
+                        // Skip the current cell and check the neighboring cells
+                        if dr == 0 && dc == 0 { continue }
 
-        // Iterate through all directions to check for flanking
-        for dr in -1...1 {
-            for dc in -1...1 {
-                // Skip the current cell and check the neighboring cells
-                if dr == 0 && dc == 0 { continue }
-
-                // Check for flanking in this direction
-                if isFlanking(row: row, col: col, dRow: dr, dCol: dc) {
-                    return true
+                        // Check for flanking in this direction
+                        if isFlanking(row: row, col: col, dRow: dr, dCol: dc) {
+                            return true
+                        }
+                    }
                 }
             }
-        }
-
-        return false
-//        return true
+            return false
     }
 
     // Function to check if there is flanking in a specific direction
@@ -224,7 +248,7 @@ struct GameView: View {
            if state == currentPlayer {
                // Found a piece of the current player, so flanking is successful
                return hasOpponentPiece
-           } else if state == .empty {
+           } else if state == .empty || state == .pp1 || state == .pp2 {
                // Found an empty cell, so no flanking
                return false
            } else {
@@ -246,6 +270,10 @@ struct GameView: View {
             return Color(red: 0.129, green: 0.302, blue: 0.447)
         case .p2:
             return .yellow
+        case .pp1:
+            return Color(red: 0.13, green: 0.2, blue: 0.45)
+        case .pp2:
+            return Color(red: 0.97, green: 0.76, blue: 0.2)
         default:
             return .white // Empty cell color
         }
@@ -254,9 +282,21 @@ struct GameView: View {
     // Function to determine whether the circle should have a border
     func overlayForCellState(_ state: CellState) -> some View {
         if state == .p1 || state == .p2 {
-            return Circle().stroke(Color.black, lineWidth: 1)
+            return Circle().stroke(Color.black, style: StrokeStyle(lineWidth: 1))
+        } else if state == .pp1 || state == .pp2 {
+            return Circle().stroke(Color.black, style: StrokeStyle(lineWidth: 1, dash: [5]))
         } else {
-            return Circle().stroke(Color.clear, lineWidth: 0)
+            return Circle().stroke(Color.clear, style: StrokeStyle(lineWidth: 0))
+        }
+    }
+    
+    // Function to set opacity
+    func circleOpacityForCellState(_ state: CellState) -> Double {
+        switch state {
+        case .pp1, .pp2:
+            return 0.5 // Set opacity to 50% for .pp1 and .pp2 states
+        default:
+            return 1.0 // Default opacity for other states
         }
     }
 }
