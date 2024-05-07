@@ -126,6 +126,10 @@ struct GameView: View {
         board[3][4] = .p1
         board[4][3] = .p1
         board[4][4] = .p2
+        board[2][3] = .pp1
+        board[3][2] = .pp1
+        board[5][4] = .pp1
+        board[4][5] = .pp1
     }
     
     // Function to fill in cells with possible moves
