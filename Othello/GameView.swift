@@ -1,3 +1,10 @@
+//
+//  GameView.swift
+//  Othello
+//
+//  Created by Serafina Yu on 5/7/24.
+//
+
 import SwiftUI
 import Foundation
 
@@ -5,13 +12,25 @@ import Foundation
 enum CellState {
     case empty, p1, p2, pp1, pp2
 }
+// Enum to represent the winner
+enum Winner {
+    case w1, w2
+}
+
+struct Player {
+    var name: String
+    var score: Int
+}
 
 struct GameView: View {
     @State private var board: [[CellState]] = Array(repeating: Array(repeating: .empty, count: 8), count: 8)
     @State private var currentPlayer: CellState = .p1
-    @State private var p1Score = 2 // Initial score for player 1
-    @State private var p2Score = 2 // Initial score for player 2
-    @State private var possibleMovesArray: [(row: Int, col: Int)] = []
+    @State private var player1 = Player(name: "Player 1", score: 2)
+    @State private var player2 = Player(name: "Player 2", score: 2)
+    @State private var numPossibleMoves = 4
+    @State private var gameOver = false
+    @State private var winner = ""
+    @State private var winnerScore = 0
 
 
     var body: some View {
@@ -101,23 +120,27 @@ struct GameView: View {
                 // Stack for players' score
                 HStack {
                     Spacer()
-                    Text("\(p1Score)")
+                    Text("\(self.player1.score)")
                         .foregroundStyle(.white)
                         .font(.title2)
                         .padding(.trailing, 30)
                     Spacer()
-                    Text("\(p2Score)")
+                    Text("\(self.player2.score)")
                         .foregroundStyle(.white)
                         .font(.title2)
                     Spacer()
                 }
                 .padding(.top, 10)
-                
                 Spacer()
             }
             .padding(.horizontal, 10)
         }
         .ignoresSafeArea()
+        .alert("Game Over!", isPresented: $gameOver) {
+            Button("Continue", action: sendDataToRecords)
+                } message: {
+                    Text("\(self.winner) wins with a score of \(self.winnerScore)!")
+                }
     }
 
     func setupInitialBoardState() {
@@ -142,6 +165,8 @@ struct GameView: View {
                 }
             }
         }
+        // Set the # of possible moves to 0
+        numPossibleMoves = 0
         
         // Set up all current moves
         for row in 0..<board.count {
@@ -153,6 +178,8 @@ struct GameView: View {
                         } else if currentPlayer == .p2 {
                             board[row][col] = .pp2
                         }
+                        // Increment the possible moves by 1
+                        numPossibleMoves += 1
                     }
                 }
             }
@@ -184,7 +211,9 @@ struct GameView: View {
         
         // Update scores
         updateScores()
+        // Update board to show new possible moves
         possibleMoves()
+        checkForWin()
     }
 
     // Function to flip opponent's pieces in a specific direction
@@ -215,8 +244,8 @@ struct GameView: View {
                 }
             }
         }
-        p1Score = p1Count
-        p2Score = p2Count
+        player1.score = p1Count
+        player2.score = p2Count
     }
     
     // Function to check if the move is valid
@@ -266,6 +295,60 @@ struct GameView: View {
        // Reached the boundary, so no flanking
        return false
    }
+    
+    // Function to check if the game is over
+    func checkForWin() {
+        // If there are no possible moves left, the game is over
+        if numPossibleMoves == 0 {
+            // If there are any leftover empty slots, fill them in with the next players pieces
+            flipLeftoverPieces()
+            updateScores()
+            setWinner()
+            gameOver = true
+        } else {
+            gameOver = false
+        }
+    }
+    
+    // Function to set the winner
+    func setWinner() {
+        if player1.score > player2.score {
+            winner = player1.name
+            winnerScore = player1.score
+        } else {
+            winner = player2.name
+            winnerScore = player2.score
+        }
+    }
+    
+    // Function to send game data to records
+    func sendDataToRecords() {
+
+    }
+    
+    // Function to change leftover empty pieces to the next player's pieces if the current player has no more moves left
+    func flipLeftoverPieces() {
+        // If the current player is p1, change every empty tile to p2's pieces
+        if currentPlayer == .p1 {
+            for row in 0..<board.count {
+                for col in 0..<board[row].count {
+                    if board[row][col] == .empty {
+                        board[row][col] = .p2
+                    }
+                }
+            }
+        // If the current player is p2, change every empty tile to p1's pieces
+        } else {
+            for row in 0..<board.count {
+                for col in 0..<board[row].count {
+                    if board[row][col] == .empty {
+                        board[row][col] = .p1
+                    }
+                }
+            }
+        }
+        
+    }
     
     // Function to determine the color of the cell based on its state
     func colorForCellState(_ state: CellState) -> Color {
