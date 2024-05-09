@@ -6,6 +6,35 @@
 //
 
 import SwiftUI
+import Observation
+
+struct HighScoreItem: Identifiable, Codable {
+    var id = UUID()
+    let name: String
+    let score: Int
+}
+
+@Observable
+class HighScore {
+    init() {
+        if let savedHighScores = UserDefaults.standard.data(forKey: "HighScores") {
+            if let decodedItems = try? JSONDecoder().decode([HighScoreItem].self, from: savedHighScores) {
+                scores = decodedItems
+                return
+            }
+        }
+        
+        scores = []
+    }
+    
+    var scores = [HighScoreItem]() {
+        didSet {
+            if let encoded = try? JSONEncoder().encode(scores) {
+                UserDefaults.standard.set(encoded, forKey: "HighScores")
+            }
+        }
+    }
+}
 
 struct TealButton: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
@@ -18,6 +47,8 @@ struct TealButton: ButtonStyle {
 }
 
 struct ContentView: View {
+    @State private var highScores = HighScore()
+    
     var body: some View {
         NavigationStack {
             ZStack {
@@ -32,14 +63,14 @@ struct ContentView: View {
                         .foregroundStyle(.tint)
                     
                     NavigationLink {
-                        GameView() // but AI
+                        GameView(highScores: highScores) // but AI
                     } label: {
                         Text("Player Vs. AI")
                     }
                     .buttonStyle(TealButton())
                     
                     NavigationLink {
-                        //GameView() but two player
+                        GameView(highScores: highScores)
                     } label: {
                         Text("Player Vs. Player")
                     }
@@ -53,7 +84,8 @@ struct ContentView: View {
                     .buttonStyle(TealButton())
                     
                     NavigationLink {
-                        //RecordsView
+                        RecordsView(highScores: highScores)
+                        let _ = print(highScores)
                     } label: {
                         Text("Records")
                     }

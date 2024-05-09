@@ -31,7 +31,8 @@ struct GameView: View {
     @State private var gameOver = false
     @State private var winner = ""
     @State private var winnerScore = 0
-
+    
+    var highScores: HighScore
 
     var body: some View {
         ZStack {
@@ -237,10 +238,8 @@ struct GameView: View {
             for cell in row {
                 if cell == .p1 {
                     p1Count += 1
-                    let _ = print("player 1: \(p1Count)")
                 } else if cell == .p2 {
                     p2Count += 1
-                    let _ = print("player 2: \(p2Count)")
                 }
             }
         }
@@ -323,7 +322,9 @@ struct GameView: View {
     
     // Function to send game data to records
     func sendDataToRecords() {
-
+        let score = HighScoreItem(name: winner, score: winnerScore)
+        let _ = print(score)
+        highScores.scores.append(score)
     }
     
     // Function to change leftover empty pieces to the next player's pieces if the current player has no more moves left
@@ -390,6 +391,6 @@ struct GameView: View {
 
 struct GameView_Previews: PreviewProvider {
     static var previews: some View {
-        GameView()
+        GameView(highScores: HighScore())
     }
 }

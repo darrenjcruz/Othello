@@ -114,7 +114,8 @@ struct HowToPlayView: View {
                     
                     Text("The winner is chosen by who ever has the most pieces on the board. The winner's name and score will be recorded. The person who has the most wins, most wins against the AI and their highest score against AI can be found on the Records screen.")
                 }
-                .frame(width: 350, alignment: .center)
+                .padding()
+                .frame(alignment: .center)
             }
             .frame(maxWidth: .infinity)
             .navigationTitle("How to Play")
