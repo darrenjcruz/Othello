@@ -14,7 +14,7 @@ struct RecordsView: View {
         ScrollView {
             VStack(spacing: 10) {
                 Section(header: Text("High Score").padding(.bottom, 5)) {
-                    ForEach(highScores.scores) { highScore in
+                    ForEach(highScores.scores.sorted(by: >)) { highScore in
                         HStack {
                             Text(highScore.name)
                             Spacer()

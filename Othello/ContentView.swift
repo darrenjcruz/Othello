@@ -8,10 +8,14 @@
 import SwiftUI
 import Observation
 
-struct HighScoreItem: Identifiable, Codable {
+struct HighScoreItem: Identifiable, Codable, Comparable {
     var id = UUID()
     let name: String
     let score: Int
+    
+    static func <(lhs: HighScoreItem, rhs: HighScoreItem) -> Bool {
+        lhs.score < rhs.score
+    }
 }
 
 @Observable
