@@ -54,7 +54,7 @@ struct ContentView: View {
     @State private var highScores = HighScore()
     
     var body: some View {
-        NavigationStack {
+        NavigationView {
             ZStack {
                 Color(red: 0.172, green: 0.463, blue: 0.584)
                     .ignoresSafeArea()
@@ -63,22 +63,27 @@ struct ContentView: View {
                     Image("OthelloLogo")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 300, height: 300)
+                        .frame(width: 300, height: 150)
                         .foregroundStyle(.tint)
+                        .padding(.bottom, 75)
                     
                     NavigationLink {
-                        GameView(highScores: highScores) // but AI
+                        PlayerNameView(AgainstAI: true, highScores: highScores) // but AI
+                            .navigationBarHidden(true)
                     } label: {
                         Text("Player Vs. AI")
                     }
                     .buttonStyle(TealButton())
-                    
+                    .padding(.bottom, 25)
+                                        
                     NavigationLink {
-                        GameView(highScores: highScores)
+                        PlayerNameView(AgainstAI: false, highScores: highScores)
+                            .navigationBarHidden(true)
                     } label: {
                         Text("Player Vs. Player")
                     }
                     .buttonStyle(TealButton())
+                    .padding(.bottom, 25)
                     
                     NavigationLink {
                         HowToPlayView()
@@ -86,6 +91,7 @@ struct ContentView: View {
                         Text("How To Play")
                     }
                     .buttonStyle(TealButton())
+                    .padding(.bottom, 25)
                     
                     NavigationLink {
                         RecordsView(highScores: highScores)

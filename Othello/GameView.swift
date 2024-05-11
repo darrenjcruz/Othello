@@ -23,18 +23,33 @@ struct Player {
 }
 
 struct GameView: View {
+    var AgainstAI: Bool
+    var highScores: HighScore
+    var p1name: String
+    var p2name: String
+    @State var player1: Player
+    @State var player2: Player
+    
     @State private var board: [[CellState]] = Array(repeating: Array(repeating: .empty, count: 8), count: 8)
     @State private var currentPlayer: CellState = .p1
-    @State private var player1 = Player(name: "Player 1", score: 2)
-    @State private var player2 = Player(name: "Player 2", score: 2)
     @State private var numPossibleMoves = 4
     @State private var gameOver = false
     @State private var winner = ""
     @State private var winnerScore = 0
     
-    var highScores: HighScore
+    @Environment(\.dismiss) var dismiss
+    
+    init(AgainstAI: Bool, highScores: HighScore, p1name: String, p2name: String) {
+        self.AgainstAI = AgainstAI
+        self.highScores = highScores
+        self.p1name = p1name
+        self.p2name = p2name
+        self.player1 = Player(name: p1name, score: 2)
+        self.player2 = Player(name: p2name, score: 2)
+    }
 
     var body: some View {
+        
         ZStack {
             // The blue background color
             Color(red: 0.172, green: 0.463, blue: 0.584)
@@ -99,7 +114,7 @@ struct GameView: View {
                             Circle()
                                 .stroke(Color.black, lineWidth: 1)
                         )
-                    Text("Player 1")
+                    Text(self.player1.name)
                         .foregroundStyle(.white)
                         .font(.title2)
                     Spacer()
@@ -110,7 +125,7 @@ struct GameView: View {
                             Circle()
                                 .stroke(Color.black, lineWidth: 1)
                         )
-                    Text("Player 2")
+                    Text(self.player2.name)
                         .foregroundStyle(.white)
                         .font(.title2)
                     Spacer()
@@ -138,10 +153,27 @@ struct GameView: View {
         }
         .ignoresSafeArea()
         .alert("Game Over!", isPresented: $gameOver) {
-            Button("Continue", action: sendDataToRecords)
-                } message: {
-                    Text("\(self.winner) wins with a score of \(self.winnerScore)!")
-                }
+            Button("Play Again") {
+                sendDataToRecords()
+                resetGame()
+            }
+            
+            NavigationLink(destination: ContentView().navigationBarHidden(true), label: {
+                Text("Main Menu")
+            })
+            .onAppear{
+                sendDataToRecords()
+            }
+        } message: {
+            Text("\(self.winner) wins with a score of \(self.winnerScore)!")
+        }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                NavigationLink(destination: ContentView().navigationBarHidden(true), label: {
+                    Text("Quit")
+                })
+            }
+        }
     }
 
     func setupInitialBoardState() {
@@ -208,6 +240,10 @@ struct GameView: View {
             
             // Switch to the next player
             currentPlayer = (currentPlayer == .p1) ? .p2 : .p1
+            if AgainstAI == true {
+                updateScores()
+                makeAIMove()
+            }
         }
         
         // Update scores
@@ -251,21 +287,21 @@ struct GameView: View {
     // Takes the current cell and checks to see if its flanking
     func isValidMove(row: Int, col: Int) -> Bool {
         // Check if the cell is empty, pp1, or pp2
-            if board[row][col] == .empty || board[row][col] == .pp1 || board[row][col] == .pp2 {
-                // Iterate through all directions to check for flanking
-                for dr in -1...1 {
-                    for dc in -1...1 {
-                        // Skip the current cell and check the neighboring cells
-                        if dr == 0 && dc == 0 { continue }
+        if board[row][col] == .empty || board[row][col] == .pp1 || board[row][col] == .pp2 {
+            // Iterate through all directions to check for flanking
+            for dr in -1...1 {
+                for dc in -1...1 {
+                    // Skip the current cell and check the neighboring cells
+                    if dr == 0 && dc == 0 { continue }
 
-                        // Check for flanking in this direction
-                        if isFlanking(row: row, col: col, dRow: dr, dCol: dc) {
-                            return true
-                        }
+                    // Check for flanking in this direction
+                    if isFlanking(row: row, col: col, dRow: dr, dCol: dc) {
+                        return true
                     }
                 }
             }
-            return false
+        }
+        return false
     }
 
     // Function to check if there is flanking in a specific direction
@@ -309,6 +345,44 @@ struct GameView: View {
         }
     }
     
+    func makeAIMove() {
+        let possibleMoves = generatePossibleMoves()
+        if !possibleMoves.isEmpty {
+            // Choose a random move from the list of possible moves
+            let randomIndex = Int.random(in: 0..<possibleMoves.count)
+            let (row, col) = possibleMoves[randomIndex]
+            board[row][col] = currentPlayer
+            
+            // Iterate through all directions to check for flanking
+            for dr in -1...1 {
+                for dc in -1...1 {
+                    // Skip the current cell and check the neighboring cells
+                    if dr == 0 && dc == 0 { continue }
+                    
+                    // Check for flanking in this direction
+                    if isFlanking(row: row, col: col, dRow: dr, dCol: dc) {
+                        // Flip opponent's pieces in this direction
+                        flipPieces(row: row, col: col, dRow: dr, dCol: dc)
+                    }
+                }
+            }
+            checkForWin()
+            currentPlayer = (currentPlayer == .p1) ? .p2 : .p1
+        }
+    }
+    
+    func generatePossibleMoves() -> [(Int, Int)] {
+        var moves = [(Int, Int)]()
+        for row in 0..<board.count {
+            for col in 0..<board[row].count {
+                if isValidMove(row: row, col: col) {
+                    moves.append((row, col))
+                }
+            }
+        }
+        return moves
+    }
+    
     // Function to set the winner
     func setWinner() {
         if player1.score > player2.score {
@@ -348,7 +422,18 @@ struct GameView: View {
                 }
             }
         }
-        
+    }
+    
+    func resetGame() {
+        self.board = Array(repeating: Array(repeating: .empty, count: 8), count: 8)
+        self.currentPlayer = .p1
+        self.numPossibleMoves = 4
+        self.gameOver = false
+        self.winner = ""
+        self.winnerScore = 0
+        self.player1.score = 2
+        self.player2.score = 2
+        setupInitialBoardState()
     }
     
     // Function to determine the color of the cell based on its state
@@ -391,6 +476,6 @@ struct GameView: View {
 
 struct GameView_Previews: PreviewProvider {
     static var previews: some View {
-        GameView(highScores: HighScore())
+        GameView(AgainstAI: true, highScores: HighScore(), p1name: "DJ", p2name: "AI")
     }
 }

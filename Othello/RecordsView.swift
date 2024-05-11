@@ -10,11 +10,19 @@ import SwiftUI
 struct RecordsView: View {
     var highScores: HighScore
     
+    var filteredHighScores: [HighScoreItem] {
+        highScores.scores.filter { $0.name != "AI" }
+    }
+    
+    var sortedFilteredHighScores: [HighScoreItem] {
+        filteredHighScores.sorted(by: >)
+    }
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 10) {
                 Section(header: Text("High Score").padding(.bottom, 5)) {
-                    ForEach(highScores.scores.sorted(by: >)) { highScore in
+                    ForEach(sortedFilteredHighScores) { highScore in
                         HStack {
                             Text(highScore.name)
                             Spacer()
