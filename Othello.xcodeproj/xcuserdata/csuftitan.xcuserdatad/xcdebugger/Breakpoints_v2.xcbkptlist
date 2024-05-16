@@ -14,9 +14,9 @@
             filePath = "Othello/GameView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "273"
-            endingLineNumber = "273"
-            landmarkName = "isFlanking(row:col:dRow:dCol:)"
+            startingLineNumber = "317"
+            endingLineNumber = "317"
+            landmarkName = "updateScores()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

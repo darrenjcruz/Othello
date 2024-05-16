@@ -36,6 +36,9 @@ struct GameView: View {
     @State private var gameOver = false
     @State private var winner = ""
     @State private var winnerScore = 0
+    @State private var aiMoving = false
+    @State private var showPossibleMoves = true
+    
     
     @Environment(\.dismiss) var dismiss
     
@@ -57,6 +60,7 @@ struct GameView: View {
             VStack {
                 Spacer()
                 Spacer()
+                Spacer()
                 
                 HStack {
                     Text("Turn: ")
@@ -76,7 +80,9 @@ struct GameView: View {
                         HStack {
                             ForEach(0..<8, id: \.self) { col in
                                 Button(action: {
-                                    self.placePiece(row: row, col: col)
+                                    if !aiMoving {
+                                        self.placePiece(row: row, col: col)
+                                    }
                                 }) {
                                     Circle()
                                         .foregroundColor(self.colorForCellState(self.board[row][col]))
@@ -87,7 +93,7 @@ struct GameView: View {
                                         
                                 }
                                 // Prevent players from placing their piece in a spot that is occupied
-                                .disabled(self.board[row][col] == .p1 || self.board[row][col] == .p2)
+                                .disabled(aiMoving || self.board[row][col] == .p1 || self.board[row][col] == .p2)
                                 .frame(width: 45, height: 45)
                                 .border(Color.black)
                                 .padding(-4)
@@ -147,7 +153,25 @@ struct GameView: View {
                     Spacer()
                 }
                 .padding(.top, 10)
+                
                 Spacer()
+                
+                HStack {
+                    ForEach(0..<4) {_ in 
+                        Spacer()
+                    }
+                    // Toggle button to show/hide possible moves
+                    Toggle("Show Possible Moves?", isOn: $showPossibleMoves)
+                        .foregroundColor(.white)
+                        .padding()
+                        .onChange(of: showPossibleMoves) { newValue in
+                            // Call possibleMoves function when toggle state changes
+                            possibleMoves()
+                        }
+                    Spacer()
+                    Spacer()
+                    Spacer()
+                }
             }
             .padding(.horizontal, 10)
         }
@@ -182,14 +206,23 @@ struct GameView: View {
         board[3][4] = .p1
         board[4][3] = .p1
         board[4][4] = .p2
-        board[2][3] = .pp1
-        board[3][2] = .pp1
-        board[5][4] = .pp1
-        board[4][5] = .pp1
+        possibleMoves()
     }
     
     // Function to fill in cells with possible moves
     func possibleMoves() {
+        // Remove all previous possible moves if toggle is off
+        if !showPossibleMoves {
+            for row in 0..<board.count {
+                for col in 0..<board[row].count {
+                    if board[row][col] == .pp1 || board[row][col] == .pp2 {
+                        board[row][col] = .empty
+                    }
+                }
+            }
+            return // Don't continue further if we're hiding possible moves
+        }
+        
         // Remove all previous possible moves
         for row in 0..<board.count {
             for col in 0..<board[row].count {
@@ -240,18 +273,27 @@ struct GameView: View {
             
             // Switch to the next player
             currentPlayer = (currentPlayer == .p1) ? .p2 : .p1
-            if AgainstAI == true {
-                updateScores()
-                makeAIMove()
+            
+            // Update scores
+            updateScores()
+            
+            // Update board to show new possible moves
+            possibleMoves()
+            
+            // Check for win
+            checkForWin()
+            
+            // Now, it's AI's turn
+            if AgainstAI && currentPlayer == .p2 {
+                // Delay AI's turn by 1 second
+                aiMoving = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + Double.random(in: 2...3)) {
+                    makeAIMove()
+                }
             }
         }
-        
-        // Update scores
-        updateScores()
-        // Update board to show new possible moves
-        possibleMoves()
-        checkForWin()
     }
+
 
     // Function to flip opponent's pieces in a specific direction
     func flipPieces(row: Int, col: Int, dRow: Int, dCol: Int) {
@@ -346,11 +388,11 @@ struct GameView: View {
     }
     
     func makeAIMove() {
-        let possibleMoves = generatePossibleMoves()
-        if !possibleMoves.isEmpty {
+        let possibleMovesList = generatePossibleMoves()
+        if !possibleMovesList.isEmpty {
             // Choose a random move from the list of possible moves
-            let randomIndex = Int.random(in: 0..<possibleMoves.count)
-            let (row, col) = possibleMoves[randomIndex]
+            let randomIndex = Int.random(in: 0..<possibleMovesList.count)
+            let (row, col) = possibleMovesList[randomIndex]
             board[row][col] = currentPlayer
             
             // Iterate through all directions to check for flanking
@@ -367,7 +409,9 @@ struct GameView: View {
                 }
             }
             checkForWin()
+            aiMoving = false
             currentPlayer = (currentPlayer == .p1) ? .p2 : .p1
+            possibleMoves()
         }
     }
     
