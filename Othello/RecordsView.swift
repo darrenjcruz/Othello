@@ -2,7 +2,7 @@
 //  RecordsView.swift
 //  Othello
 //
-//  Created by DJ Cruz on 5/8/24.
+//  Created by Darren Cruz & Serafina Yu on 5/8/24.
 //
 
 import SwiftUI

@@ -2,7 +2,7 @@
 //  HowToPlayView.swift
 //  Othello
 //
-//  Created by DJ Cruz on 5/4/24.
+//  Created by Darren Cruz & Serafina Yu on 5/4/24.
 //
 
 import SwiftUI

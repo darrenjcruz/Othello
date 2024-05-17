@@ -2,7 +2,7 @@
 //  PlayerNameView.swift
 //  Othello
 //
-//  Created by Serafina Yu on 5/7/24.
+//  Created by Darren Cruz & Serafina Yu on 5/7/24.
 //
 
 import SwiftUI
