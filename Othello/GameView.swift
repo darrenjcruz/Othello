@@ -285,9 +285,9 @@ struct GameView: View {
             if AgainstAI && currentPlayer == .p2 {
                 // Delay AI's turn by 1 second
                 aiMoving = true
-//                DispatchQueue.main.asyncAfter(deadline: .now() + Double.random(in: 2...3)) {
-                makeAIMove()
-                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    makeAIMove()
+                }
             }
         }
     }
