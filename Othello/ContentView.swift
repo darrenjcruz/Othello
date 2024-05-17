@@ -22,7 +22,8 @@ struct HighScoreItem: Identifiable, Codable, Comparable {
 class HighScore {
     init() {
         if let savedHighScores = UserDefaults.standard.data(forKey: "HighScores") {
-            if let decodedItems = try? JSONDecoder().decode([HighScoreItem].self, from: savedHighScores) {
+            if let decodedItems = try?
+                JSONDecoder().decode([HighScoreItem].self, from: savedHighScores) {
                 scores = decodedItems
                 return
             }
@@ -50,11 +51,15 @@ struct TealButton: ButtonStyle {
     }
 }
 
+enum ViewIdentifier: Hashable {
+    case playerNameView, howToPlayView, recordsView, gameView
+}
 struct ContentView: View {
     @State private var highScores = HighScore()
+    @State private var navigationPath = NavigationPath() // Use programmatic navigation to handle navigation destinations
     
     var body: some View {
-        NavigationView {
+        NavigationStack(path: $navigationPath) {
             ZStack {
                 Color(red: 0.172, green: 0.463, blue: 0.584)
                     .ignoresSafeArea()
@@ -67,36 +72,25 @@ struct ContentView: View {
                         .foregroundStyle(.tint)
                         .padding(.bottom, 75)
                     
-                    NavigationLink {
-                        PlayerNameView(AgainstAI: true, highScores: highScores) // but AI
-                            .navigationBarHidden(true)
-                    } label: {
+                    NavigationLink(destination: PlayerNameView(AgainstAI: true, highScores: highScores)) { // but AI
                         Text("Player Vs. AI")
                     }
                     .buttonStyle(TealButton())
                     .padding(.bottom, 25)
-                                        
-                    NavigationLink {
-                        PlayerNameView(AgainstAI: false, highScores: highScores)
-                            .navigationBarHidden(true)
-                    } label: {
+                                  
+                    NavigationLink(destination: PlayerNameView(AgainstAI: false, highScores: highScores)) {
                         Text("Player Vs. Player")
                     }
                     .buttonStyle(TealButton())
                     .padding(.bottom, 25)
                     
-                    NavigationLink {
-                        HowToPlayView()
-                    } label: {
+                    NavigationLink(destination: HowToPlayView()) {
                         Text("How To Play")
                     }
                     .buttonStyle(TealButton())
                     .padding(.bottom, 25)
                     
-                    NavigationLink {
-                        RecordsView(highScores: highScores)
-                        let _ = print(highScores)
-                    } label: {
+                    NavigationLink(destination: RecordsView(highScores: highScores)) {
                         Text("Records")
                     }
                     .buttonStyle(TealButton())
@@ -105,6 +99,9 @@ struct ContentView: View {
         }
     }
 }
+
+
+
 
 #Preview {
     ContentView()

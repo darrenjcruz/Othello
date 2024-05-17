@@ -16,39 +16,33 @@ struct PlayerNameView: View {
     @State private var p2Name = ""
     
     var body: some View {
-        NavigationStack {
-            Form {
-                Section("**Player 1's Name:**") {
-                    TextField("Please enter a name...", text: $p1Name)
+        Form {
+            Section("**Player 1's Name:**") {
+                TextField("Please enter a name...", text: $p1Name)
+            }
+            .headerProminence(.increased)
+            .foregroundColor(Color(red: 29.0/255.0, green: 55.0/255.0, blue: 82.0/255.0))
+            
+            if AgainstAI == false {
+                Section("**Player 2's Name:**") {
+                    TextField("Please enter a name...", text: $p2Name)
                 }
                 .headerProminence(.increased)
                 .foregroundColor(Color(red: 29.0/255.0, green: 55.0/255.0, blue: 82.0/255.0))
-                
-                if AgainstAI == false {
-                    Section("**Player 2's Name:**") {
-                        TextField("Please enter a name...", text: $p2Name)
-                    }
-                    .headerProminence(.increased)
-                    .foregroundColor(Color(red: 29.0/255.0, green: 55.0/255.0, blue: 82.0/255.0))
-                }
-                
-                Section {
-                    NavigationLink("Continue") {
-                        if AgainstAI == true {
-                            GameView(AgainstAI: AgainstAI, highScores: highScores, p1name: p1Name, p2name: "AI")
-                                .navigationBarBackButtonHidden(true)
-                        } else {
-                            GameView(AgainstAI: AgainstAI, highScores: highScores, p1name: p1Name, p2name: p2Name)
-                                .navigationBarBackButtonHidden(true)
-                        }
-                    }
-                }
-                .disabled(!isValid())
             }
-            .navigationTitle("Game Details")
-            .background(Color(red: 0.172, green: 0.463, blue: 0.584))
-            .scrollContentBackground(.hidden)
+            
+            Section {
+                NavigationLink(destination: AgainstAI ? GameView(AgainstAI: AgainstAI, highScores: highScores, p1name: p1Name, p2name: "AI") : GameView(AgainstAI: AgainstAI, highScores: highScores, p1name: p1Name, p2name: p2Name)
+                        
+                ){
+                    Text("Continue")
+                }
+            }
+            .disabled(!isValid())
         }
+        .navigationTitle("Game Details")
+        .background(Color(red: 0.172, green: 0.463, blue: 0.584))
+        .scrollContentBackground(.hidden)
     }
     
     func isValid() -> Bool {

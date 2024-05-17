@@ -38,8 +38,7 @@ struct GameView: View {
     @State private var winnerScore = 0
     @State private var aiMoving = false
     @State private var showPossibleMoves = true
-    
-    
+
     @Environment(\.dismiss) var dismiss
     
     init(AgainstAI: Bool, highScores: HighScore, p1name: String, p2name: String) {
@@ -50,7 +49,7 @@ struct GameView: View {
         self.player1 = Player(name: p1name, score: 2)
         self.player2 = Player(name: p2name, score: 2)
     }
-
+    
     var body: some View {
         
         ZStack {
@@ -178,7 +177,6 @@ struct GameView: View {
         .ignoresSafeArea()
         .alert("Game Over!", isPresented: $gameOver) {
             Button("Play Again") {
-                sendDataToRecords()
                 resetGame()
             }
             
@@ -191,13 +189,13 @@ struct GameView: View {
         } message: {
             Text("\(self.winner) wins with a score of \(self.winnerScore)!")
         }
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                NavigationLink(destination: ContentView().navigationBarHidden(true), label: {
-                    Text("Quit")
-                })
-            }
-        }
+//        .toolbar {
+//            ToolbarItem(placement: .navigationBarLeading) {
+//                NavigationLink(destination: ContentView()) {
+//                    Text("Back")
+//                }
+//            }
+//        }
     }
 
     func setupInitialBoardState() {
@@ -208,7 +206,7 @@ struct GameView: View {
         board[4][4] = .p2
         possibleMoves()
     }
-    
+
     // Function to fill in cells with possible moves
     func possibleMoves() {
         // Remove all previous possible moves if toggle is off
@@ -287,9 +285,9 @@ struct GameView: View {
             if AgainstAI && currentPlayer == .p2 {
                 // Delay AI's turn by 1 second
                 aiMoving = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + Double.random(in: 2...3)) {
-                    makeAIMove()
-                }
+//                DispatchQueue.main.asyncAfter(deadline: .now() + Double.random(in: 2...3)) {
+                makeAIMove()
+                
             }
         }
     }
@@ -408,10 +406,10 @@ struct GameView: View {
                     }
                 }
             }
-            checkForWin()
-            aiMoving = false
             currentPlayer = (currentPlayer == .p1) ? .p2 : .p1
             possibleMoves()
+            checkForWin()
+            aiMoving = false
         }
     }
     
@@ -477,6 +475,7 @@ struct GameView: View {
         self.winnerScore = 0
         self.player1.score = 2
         self.player2.score = 2
+        self.aiMoving = false
         setupInitialBoardState()
     }
     
